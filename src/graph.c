@@ -286,7 +286,9 @@ static void check_reachability(void) {
 
 			if(!n->status.reachable) {
 				update_node_udp(n, NULL);
+				node_status_t old_status = n->status;
 				memset(&n->status, 0, sizeof(n->status));
+				n->status.has_address = old_status.has_address; // Retain the non-dynamic has_address parameter
 				n->options = 0;
 			} else if(n->connection) {
 				// Speed up UDP probing by sending our key.
