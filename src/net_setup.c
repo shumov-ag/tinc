@@ -384,33 +384,34 @@ void load_all_nodes(void) {
 		splay_tree_t *config_tree;
 		init_configuration(&config_tree);
 		read_config_options(config_tree, ent->d_name);
-		read_host_config(config_tree, ent->d_name, true);
 
-		if(!n) {
-			n = new_node();
-			n->name = xstrdup(ent->d_name);
-			node_add(n);
-		}
+		if (read_host_config(config_tree, ent->d_name, true)) {
+			if(!n) {
+				n = new_node();
+				n->name = xstrdup(ent->d_name);
+				node_add(n);
+			}
 
-		if(strictsubnets) {
-			for(config_t *cfg = lookup_config(config_tree, "Subnet"); cfg; cfg = lookup_config_next(config_tree, cfg)) {
-				subnet_t *s, *s2;
+			if(strictsubnets) {
+				for(config_t *cfg = lookup_config(config_tree, "Subnet"); cfg; cfg = lookup_config_next(config_tree, cfg)) {
+					subnet_t *s, *s2;
 
-				if(!get_config_subnet(cfg, &s)) {
-					continue;
-				}
+					if(!get_config_subnet(cfg, &s)) {
+						continue;
+					}
 
-				if((s2 = lookup_subnet(n, s))) {
-					s2->expires = -1;
-					free(s);
-				} else {
-					subnet_add(n, s);
+					if((s2 = lookup_subnet(n, s))) {
+						s2->expires = -1;
+						free(s);
+					} else {
+						subnet_add(n, s);
+					}
 				}
 			}
-		}
 
-		if(lookup_config(config_tree, "Address")) {
-			n->status.has_address = true;
+			if(lookup_config(config_tree, "Address")) {
+				n->status.has_address = true;
+			}
 		}
 
 		exit_configuration(&config_tree);
