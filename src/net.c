@@ -452,6 +452,12 @@ int reload_configuration(void) {
 		}
 	}
 
+	/* If AutoConnect is set, check if we need to make or break connections. */
+
+	if(autoconnect && node_tree->count > 1) {
+		do_autoconnect();
+	}
+	
 	last_config_check = now.tv_sec;
 
 	return 0;
