@@ -850,6 +850,18 @@ void try_outgoing_connections(void) {
 			setup_outgoing_connection(outgoing, true);
 		}
 	}
+	
+	/* Retain exist outgoing connections for exist nodes if autoconnection is enabled. */
+
+	if (autoconnect) {
+		for splay_each(node_t, n, node_tree) {
+			for list_each(connection_t, c, connection_list) {
+				if(c->outgoing && c->node == n && n->status.has_address) {
+					c->outgoing->timeout = 0;
+				}
+			}
+		}
+	}
 
 	/* Terminate any connections whose outgoing_t is to be deleted. */
 
